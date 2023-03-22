@@ -10,6 +10,3 @@ sealed class NotesUiEvent {
     object ToggleOrderSection : NotesUiEvent()
 }
 
-interface NoteEvent{
-    fun onEvent(event: NotesUiEvent)
-}

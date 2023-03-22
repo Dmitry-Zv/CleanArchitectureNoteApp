@@ -6,6 +6,7 @@ import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.model.Note
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.NoteUseCases
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.util.NoteOrder
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.util.OrderType
+import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.NoteEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NotesViewModel @Inject constructor(
     private val noteUseCases: NoteUseCases
-) : ViewModel(), NoteEvent {
+) : ViewModel(), NoteEvent<NotesUiEvent> {
     private val _state = MutableStateFlow(NotesState())
     val state = _state.asStateFlow()
     private var recentlyDeleteNote: Note? = null
@@ -32,6 +33,9 @@ class NotesViewModel @Inject constructor(
     override fun onEvent(event: NotesUiEvent) {
         when (event) {
             is NotesUiEvent.Order -> {
+                if (state.value.noteOrder::class == event.order::class
+                    && state.value.noteOrder.orderType == event.order.orderType
+                ) return
                 performNotes(order = event.order)
 
             }
@@ -68,10 +72,6 @@ class NotesViewModel @Inject constructor(
     }
 
     private fun performNotes(order: NoteOrder) {
-
-        if (state.value.noteOrder::class == order::class
-            && state.value.noteOrder.orderType == order.orderType
-        ) return
         getNotesJob?.cancel()
         getNotesJob = noteUseCases.getNotesUseCase(noteOrder = order)
             .onEach { notes ->

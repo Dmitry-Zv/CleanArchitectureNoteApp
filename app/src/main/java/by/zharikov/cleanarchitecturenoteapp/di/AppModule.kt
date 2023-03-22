@@ -8,10 +8,7 @@ import by.zharikov.cleanarchitecturenoteapp.feature_note.data.data_source.NoteDa
 import by.zharikov.cleanarchitecturenoteapp.feature_note.data.data_source.NoteDatabase.Companion.DATABASE_NAME
 import by.zharikov.cleanarchitecturenoteapp.feature_note.data.repository.NoteRepositoryImpl
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.repository.NoteRepository
-import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.AddNoteUseCase
-import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.DeleteNoteUseCase
-import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.GetNotesUseCase
-import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.NoteUseCases
+import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.*
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -44,7 +41,8 @@ object AppModule {
         NoteUseCases(
             getNotesUseCase = GetNotesUseCase(repository),
             deleteNoteUseCase = DeleteNoteUseCase(repository),
-            addNoteUseCase = AddNoteUseCase(repository)
+            addNoteUseCase = AddNoteUseCase(repository),
+            getNoteUseCase = GetNoteUseCase(repository)
         )
 }
 
