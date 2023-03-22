@@ -24,7 +24,7 @@ fun DefaultRadioButton(
             onClick = onSelect,
             colors = RadioButtonDefaults.colors(
                 selectedColor = MaterialTheme.colors.primary,
-                unselectedColor = MaterialTheme.colors.background
+                unselectedColor = MaterialTheme.colors.primaryVariant
             )
         )
         Text(text = text, style = MaterialTheme.typography.body1)
