@@ -7,6 +7,8 @@ import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 
 @androidx.compose.runtime.Composable
 fun DefaultRadioButton(
@@ -25,7 +27,10 @@ fun DefaultRadioButton(
             colors = RadioButtonDefaults.colors(
                 selectedColor = MaterialTheme.colors.primary,
                 unselectedColor = MaterialTheme.colors.primaryVariant
-            )
+            ),
+            modifier = Modifier.semantics {
+                contentDescription = text
+            }
         )
         Text(text = text, style = MaterialTheme.typography.body1)
     }
