@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,11 +14,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import by.zharikov.cleanarchitecturenoteapp.R
+import by.zharikov.cleanarchitecturenoteapp.core.utils.TestTags.ORDER_SECTION
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes.components.NoteItem
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes.components.OrderSection
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.util.Screen
@@ -71,7 +72,8 @@ fun NoteScreen(
                 OrderSection(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
+                        .padding(vertical = 16.dp)
+                        .testTag(ORDER_SECTION),
                     noteOrder = state.noteOrder
                 ) { noteOrder ->
                     viewModel.onEvent(event = NotesUiEvent.Order(order = noteOrder))
