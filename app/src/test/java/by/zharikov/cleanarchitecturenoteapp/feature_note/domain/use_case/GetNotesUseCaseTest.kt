@@ -30,7 +30,7 @@ class GetNotesUseCaseTest {
                     title = c.toString(),
                     content = c.toString(),
                     timestamp = index.toLong(),
-                    color = index
+                    color = Pair(c.toString(), index)
                 )
             )
 
@@ -85,7 +85,7 @@ class GetNotesUseCaseTest {
         val notes = getNotes(noteOrder = NoteOrder.Color(OrderType.Ascending)).first()
 
         for (i in 0..notes.size - 2) {
-            assertThat(notes[i].color).isLessThan(notes[i + 1].color)
+            assertThat(notes[i].color.second).isLessThan(notes[i + 1].color.second)
         }
     }
 
@@ -94,7 +94,7 @@ class GetNotesUseCaseTest {
         val notes = getNotes(noteOrder = NoteOrder.Color(OrderType.Descending)).first()
 
         for (i in 0..notes.size - 2) {
-            assertThat(notes[i].color).isGreaterThan(notes[i + 1].color)
+            assertThat(notes[i].color.second).isGreaterThan(notes[i + 1].color.second)
         }
     }
 

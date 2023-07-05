@@ -8,20 +8,24 @@ import javax.inject.Inject
 
 class FakeNoteRepository @Inject constructor() : NoteRepository {
 
-    private val notes = mutableListOf<Note>()
+    private val notesList = mutableListOf<Note>()
 
     override fun getAllNotes(): Flow<List<Note>> = flow {
-        emit(notes)
+        emit(notesList)
     }
 
     override suspend fun getNoteById(id: Int): Note? =
-        notes.find { it.id == id }
+        notesList.find { it.id == id }
 
     override suspend fun insertNote(note: Note) {
-        notes.add(note)
+        notesList.add(note)
     }
 
     override suspend fun deleteNote(note: Note) {
-        notes.remove(note)
+        notesList.remove(note)
+    }
+
+    override suspend fun updateNotes(notes: List<Note>) {
+        notesList.addAll(notes)
     }
 }

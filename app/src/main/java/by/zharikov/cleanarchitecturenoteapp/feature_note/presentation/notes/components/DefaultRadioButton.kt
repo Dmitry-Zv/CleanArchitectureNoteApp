@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import by.zharikov.cleanarchitecturenoteapp.ui.theme.NoteTheme
 
 @androidx.compose.runtime.Composable
 fun DefaultRadioButton(
@@ -25,13 +26,13 @@ fun DefaultRadioButton(
             selected = selected,
             onClick = onSelect,
             colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colors.primary,
-                unselectedColor = MaterialTheme.colors.primaryVariant
+                selectedColor = NoteTheme.colors.primary,
+                unselectedColor = NoteTheme.colors.primaryVariant
             ),
             modifier = Modifier.semantics {
                 contentDescription = text
             }
         )
-        Text(text = text, style = MaterialTheme.typography.body1)
+        Text(text = text, style = NoteTheme.typography.body1, color = NoteTheme.colors.onSurface)
     }
 }

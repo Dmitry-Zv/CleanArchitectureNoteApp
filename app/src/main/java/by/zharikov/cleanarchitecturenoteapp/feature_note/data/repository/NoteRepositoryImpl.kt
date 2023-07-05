@@ -22,4 +22,8 @@ class NoteRepositoryImpl @Inject constructor(private val noteDao: NoteDao) : Not
     override suspend fun deleteNote(note: Note) {
         noteDao.deleteNote(note = note)
     }
+
+    override suspend fun updateNotes(notes: List<Note>) {
+        noteDao.updateNotes(notes = notes)
+    }
 }
