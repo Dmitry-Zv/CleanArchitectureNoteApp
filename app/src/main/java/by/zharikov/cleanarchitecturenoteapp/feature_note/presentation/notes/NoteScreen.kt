@@ -1,5 +1,6 @@
 package by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,10 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.List
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -21,31 +19,43 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import by.zharikov.cleanarchitecturenoteapp.R
 import by.zharikov.cleanarchitecturenoteapp.core.utils.TestTags.ORDER_SECTION
+import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.model.Note
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes.components.NoteItem
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes.components.OrderSection
+import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes.components.ToggleThemeButton
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.util.Screen
+import by.zharikov.cleanarchitecturenoteapp.ui.theme.NoteTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun NoteScreen(
     navController: NavController,
-    viewModel: NotesViewModel = hiltViewModel()
+    viewModel: NotesViewModel
 ) {
     val state by viewModel.state.collectAsState()
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
-    Scaffold(scaffoldState = scaffoldState,
+    Log.d("INIT_NOTE", state.toString())
+    Log.d("THEME_TAG", state.isDarkTheme.toString())
+    Scaffold(
+        scaffoldState = scaffoldState,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     navController.navigate(Screen.AddEditNoteScreen.route)
                 },
-                backgroundColor = MaterialTheme.colors.primary
+                backgroundColor = NoteTheme.colors.onBackground
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Note")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Note",
+                    tint = NoteTheme.colors.background
+                )
             }
-        }) {
+        },
+        backgroundColor = NoteTheme.colors.background
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -53,15 +63,36 @@ fun NoteScreen(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(id = R.string.your_note),
-                    style = MaterialTheme.typography.h4
+                    color = NoteTheme.colors.primary,
+                    style = NoteTheme.typography.h4,
+                    modifier = Modifier.weight(1f)
                 )
+                state.isDarkTheme?.let {
+                    ToggleThemeButton(isDarkTheme = it) {
+                        if (it) viewModel.onEvent(
+                            event = NotesUiEvent.ToggleThemeButton(
+                                false
+                            )
+                        )
+                        else viewModel.onEvent(
+                            event = NotesUiEvent.ToggleThemeButton(
+                                true
+                            )
+                        )
+                        Log.d("THEME_TAG", state.isDarkTheme.toString())
+                    }
+                }
+
                 IconButton(onClick = { viewModel.onEvent(event = NotesUiEvent.ToggleOrderSection) }) {
-                    Icon(imageVector = Icons.Default.List, contentDescription = "Sort")
+                    Icon(
+                        imageVector = Icons.Default.List,
+                        contentDescription = "Sort",
+                        tint = NoteTheme.colors.onBackground
+                    )
                 }
             }
             AnimatedVisibility(
@@ -87,7 +118,7 @@ fun NoteScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                navController.navigate("${Screen.AddEditNoteScreen.route}?noteId=${note.id}&noteColor=${note.color}")
+                                navController.navigate("${Screen.AddEditNoteScreen.route}?noteId=${note.id}&noteColor=${note.color.second}")
                             },
                         onDeleteClick = {
                             viewModel.onEvent(event = NotesUiEvent.DeleteNote(note = note))

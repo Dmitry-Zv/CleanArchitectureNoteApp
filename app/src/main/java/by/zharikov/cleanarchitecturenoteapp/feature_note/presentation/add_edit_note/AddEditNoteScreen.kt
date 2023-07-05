@@ -1,7 +1,7 @@
 package by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.add_edit_note
 
+import android.util.Log
 import androidx.compose.animation.Animatable
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,9 +20,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import by.zharikov.cleanarchitecturenoteapp.core.utils.ColorTags
 import by.zharikov.cleanarchitecturenoteapp.core.utils.TestTags
-import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.model.Note
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.add_edit_note.components.TransparentTextField
+import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.util.Screen
+import by.zharikov.cleanarchitecturenoteapp.ui.theme.NoteTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -38,11 +40,23 @@ fun AddEditNoteScreen(
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
+
+    val listOfMapOfNoteColors = mapOf(
+        ColorTags.RED_ORANGE to NoteTheme.colors.redOrange,
+        ColorTags.LIGHT_GREEN to NoteTheme.colors.lightGreen,
+        ColorTags.BABY_BLUE to NoteTheme.colors.babyBlue,
+        ColorTags.RED_PINK to NoteTheme.colors.redPink,
+        ColorTags.VIOLET to NoteTheme.colors.violet
+    )
+
+    Log.d("EVENT", colorState.toString())
+
     val noteBackgroundAnimatable = remember {
         Animatable(
-            Color(if (noteColor != -1) noteColor else colorState)
+            Color(if (noteColor != -1) noteColor else colorState.second)
         )
     }
+    Log.d("EVENT", noteBackgroundAnimatable.value.toArgb().toString())
     LaunchedEffect(key1 = Unit) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
@@ -56,13 +70,20 @@ fun AddEditNoteScreen(
         }
     }
 
+
+
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { viewModel.onEvent(event = AddEditNoteUiEvent.SaveNote) },
-                backgroundColor = MaterialTheme.colors.primary
+                backgroundColor = NoteTheme.colors.onBackground
             ) {
-                Icon(imageVector = Icons.Default.Create, contentDescription = "Save note")
+                Icon(
+                    imageVector = Icons.Default.Create,
+                    contentDescription = "Save note",
+                    tint = NoteTheme.colors.background
+                )
             }
         },
         scaffoldState = scaffoldState
@@ -80,17 +101,19 @@ fun AddEditNoteScreen(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Note.notesColor.forEach { color ->
-                    val colorInt = color.toArgb()
+
+                listOfMapOfNoteColors.forEach { color ->
+                    val colorInt = color.value.toArgb()
+                    val colorPair = Pair(color.key, colorInt)
                     Box(
                         modifier = Modifier
                             .size(50.dp)
                             .shadow(15.dp, CircleShape)
                             .clip(CircleShape)
-                            .background(color)
+                            .background(color.value)
                             .border(
                                 width = 3.dp,
-                                color = if (colorState == colorInt) Color.Black
+                                color = if (colorInt == colorState.second) Color.Black
                                 else Color.Transparent,
                                 shape = CircleShape
                             )
@@ -103,7 +126,7 @@ fun AddEditNoteScreen(
                                         )
                                     )
                                 }
-                                viewModel.onEvent(event = AddEditNoteUiEvent.ChangeColor(color = colorInt))
+                                viewModel.onEvent(event = AddEditNoteUiEvent.ChangeColor(colorPair = colorPair))
                             }
                     )
 
@@ -124,7 +147,7 @@ fun AddEditNoteScreen(
                 isHintVisible = titleState.isHintVisible,
                 singleLine = true,
                 testTag = TestTags.TITLE_TEXT_FIELD,
-                textStyle = MaterialTheme.typography.h5
+                textStyle = NoteTheme.typography.h5
             )
             Spacer(modifier = Modifier.height(16.dp))
             TransparentTextField(
@@ -137,7 +160,7 @@ fun AddEditNoteScreen(
                     viewModel.onEvent(event = AddEditNoteUiEvent.ChangeContentFocus(it))
                 },
                 isHintVisible = contentState.isHintVisible,
-                textStyle = MaterialTheme.typography.body1,
+                textStyle = NoteTheme.typography.body1,
                 testTag = TestTags.CONTENT_TEXT_FIElD,
                 modifier = Modifier.fillMaxHeight()
             )

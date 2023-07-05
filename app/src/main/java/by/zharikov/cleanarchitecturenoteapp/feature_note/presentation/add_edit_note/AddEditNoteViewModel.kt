@@ -1,15 +1,16 @@
 package by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.add_edit_note
 
+import android.util.Log
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.model.InvalidNoteException
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.model.Note
-import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.GetNoteUseCase
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.NoteUseCases
+import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.ThemeUseCases
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.NoteEvent
-import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes.NotesState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditNoteViewModel @Inject constructor(
     private val noteUseCase: NoteUseCases,
+    private val themeUseCases: ThemeUseCases,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), NoteEvent<AddEditNoteUiEvent> {
 
@@ -36,7 +38,7 @@ class AddEditNoteViewModel @Inject constructor(
     )
     val noteContent = _noteContent.asStateFlow()
 
-    private val _noteColor = MutableStateFlow(Note.notesColor.random().toArgb())
+    private val _noteColor = MutableStateFlow(Pair("", 0))
     val noteColor = _noteColor.asStateFlow()
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
@@ -64,13 +66,19 @@ class AddEditNoteViewModel @Inject constructor(
                         _noteColor.value = note.color
                     }
                 }
+            } else {
+                viewModelScope.launch {
+                    if (themeUseCases.getThemeFromSharedPref()) _noteColor.value =
+                        Note.notesColorDark.entries.random().toPair()
+                    else _noteColor.value = Note.notesColorLight.entries.random().toPair()
+                }
             }
         }
     }
 
     override fun onEvent(event: AddEditNoteUiEvent) {
         when (event) {
-            is AddEditNoteUiEvent.ChangeColor -> changeColor(color = event.color)
+            is AddEditNoteUiEvent.ChangeColor -> changeColor(colorPair = event.colorPair)
             is AddEditNoteUiEvent.ChangeContentFocus -> changeContentFocus(isFocus = event.focusState.isFocused)
             is AddEditNoteUiEvent.ChangeTitleFocus -> changeTitleFocus(isFocus = event.focusState.isFocused)
             is AddEditNoteUiEvent.EnteredContent -> enteredContent(content = event.value)
@@ -78,6 +86,7 @@ class AddEditNoteViewModel @Inject constructor(
             AddEditNoteUiEvent.SaveNote -> saveNote()
         }
     }
+
 
     private fun saveNote() {
         viewModelScope.launch {
@@ -127,7 +136,7 @@ class AddEditNoteViewModel @Inject constructor(
         }
     }
 
-    private fun changeColor(color: Int) {
-        _noteColor.value = color
+    private fun changeColor(colorPair: Pair<String, Int>) {
+        _noteColor.value = colorPair
     }
 }

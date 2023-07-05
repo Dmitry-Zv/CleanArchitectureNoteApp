@@ -1,8 +1,5 @@
 package by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes
 
-import android.util.Log
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.model.Note
@@ -11,16 +8,15 @@ import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.use_case.ThemeUs
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.util.NoteOrder
 import by.zharikov.cleanarchitecturenoteapp.feature_note.domain.util.OrderType
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.NoteEvent
-import by.zharikov.cleanarchitecturenoteapp.ui.theme.*
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-@HiltViewModel
-class NotesViewModel @Inject constructor(
+class NotesViewModelTest @Inject constructor(
     private val noteUseCases: NoteUseCases,
     private val themeUseCases: ThemeUseCases
 ) : ViewModel(), NoteEvent<NotesUiEvent> {
@@ -84,6 +80,7 @@ class NotesViewModel @Inject constructor(
                 colorsMap[note.color.first]?.let {
                     val newColor = Pair(note.color.first, it)
                     notes.add(note.copy(color = newColor))
+//                    noteUseCases.addNoteUseCase(note.copy(color = newColor))
                 }
 
 
@@ -128,5 +125,4 @@ class NotesViewModel @Inject constructor(
 
 
     }
-
 }

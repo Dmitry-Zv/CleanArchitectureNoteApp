@@ -1,18 +1,24 @@
 package by.zharikov.cleanarchitecturenoteapp.feature_note.presentation
 
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import by.zharikov.cleanarchitecturenoteapp.core.utils.TestTags
-import by.zharikov.cleanarchitecturenoteapp.di.AppModule
+import by.zharikov.cleanarchitecturenoteapp.di.NoteModule
 import by.zharikov.cleanarchitecturenoteapp.di.RepModule
+import by.zharikov.cleanarchitecturenoteapp.di.ThemeModule
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.add_edit_note.AddEditNoteScreen
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes.NoteScreen
+import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes.NotesViewModel
+import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.notes.NotesViewModelTest
 import by.zharikov.cleanarchitecturenoteapp.feature_note.presentation.util.Screen
 import by.zharikov.cleanarchitecturenoteapp.ui.theme.CleanArchitectureNoteAppTheme
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -24,7 +30,7 @@ import org.junit.Test
 
 
 @HiltAndroidTest
-@UninstallModules(AppModule::class, RepModule::class)
+@UninstallModules(NoteModule::class, RepModule::class, ThemeModule::class)
 class NotesEndToEndTest {
 
 
@@ -34,46 +40,53 @@ class NotesEndToEndTest {
     @get:Rule(order = 1)
     val composeRule = createAndroidComposeRule<MainActivity>()
 
+    lateinit var viewModel: NotesViewModel
+
     @Before
     fun setUp() {
         hiltRule.inject()
         composeRule.activity.setContent {
-            CleanArchitectureNoteAppTheme {
-                val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = Screen.NoteScreen.route) {
-                    composable(Screen.NoteScreen.route) {
-                        NoteScreen(navController = navController)
-                    }
-
-                    composable(
-                        "${Screen.AddEditNoteScreen.route}?noteId={noteId}&noteColor={noteColor}",
-                        listOf(
-                            navArgument(
-                                name = "noteId",
-                                builder = {
-                                    type = NavType.IntType
-                                    defaultValue = -1
-                                }
-                            ),
-                            navArgument(
-                                name = "noteColor",
-                                builder = {
-                                    type = NavType.IntType
-                                    defaultValue = -1
-                                }
+            viewModel = hiltViewModel()
+            val state by viewModel.state.collectAsState()
+            state.isDarkTheme?.let {
+                CleanArchitectureNoteAppTheme(isDarkTheme = false) {
+                    val navController = rememberNavController()
+                    NavHost(navController = navController, startDestination = Screen.NoteScreen.route) {
+                        composable(Screen.NoteScreen.route) {
+                            NoteScreen(navController = navController, viewModel = viewModel)
+                        }
+                        composable("${Screen.AddEditNoteScreen.route}?noteId={noteId}&noteColor={noteColor}",
+                            arguments = listOf(
+                                navArgument(
+                                    name = "noteId",
+                                    builder = {
+                                        type = NavType.IntType
+                                        defaultValue = -1
+                                    }
+                                ),
+                                navArgument(
+                                    name = "noteColor",
+                                    builder = {
+                                        type = NavType.IntType
+                                        defaultValue = -1
+                                    }
+                                )
                             )
-                        )
-                    ) { navBackStackEntry ->
-                        val color = navBackStackEntry.arguments?.getInt("noteColor") ?: -1
-                        AddEditNoteScreen(navController = navController, noteColor = color)
+                        ) { navBackStackEntry ->
+                            val color = navBackStackEntry.arguments?.getInt("noteColor") ?: -1
+                            AddEditNoteScreen(navController = navController, noteColor = color)
+
+                        }
                     }
                 }
             }
+
         }
     }
 
     @Test
     fun saveNewNote_editAfterwards() {
+
         composeRule.onNodeWithContentDescription("Add Note").performClick()
 
         composeRule.onNodeWithTag(TestTags.TITLE_TEXT_FIELD).performTextInput("text title")
@@ -103,6 +116,7 @@ class NotesEndToEndTest {
             composeRule.onNodeWithContentDescription("Save note").performClick()
 
             composeRule.onNodeWithText("text title $i").assertIsDisplayed()
+
         }
         composeRule.onNodeWithContentDescription("Sort").performClick()
         composeRule.onNodeWithContentDescription("Title").performClick()

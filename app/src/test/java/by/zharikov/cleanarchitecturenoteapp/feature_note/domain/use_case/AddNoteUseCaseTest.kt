@@ -31,7 +31,7 @@ class AddNoteUseCaseTest {
             title = " ",
             content = "content",
             timestamp = 1L,
-            color = 1,
+            color = Pair("color", 1),
             id = 1
         )
         assertThrows(InvalidNoteException::class.java) {
@@ -48,7 +48,7 @@ class AddNoteUseCaseTest {
             title = "title",
             content = " ",
             timestamp = 1L,
-            color = 1,
+            color = Pair("color", 1),
             id = 1
         )
         assertThrows(InvalidNoteException::class.java) {
@@ -64,7 +64,7 @@ class AddNoteUseCaseTest {
             title = "title",
             content = "content",
             timestamp = 1L,
-            color = 1,
+            color = Pair("color", 1),
             id = 1
         )
         addNoteUseCase(note)
